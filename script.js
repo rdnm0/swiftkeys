@@ -8,15 +8,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const startButton = document.getElementById('startButton');
 
     let timerInterval;
-    let startTime, endTime, wordCount, totalTime;
+    let startTime, wordCount, totalTime;
 
-    const wordSet = [
-        "apple", "banana", "cherry", "orange", "grape",
-        "elephant", "giraffe", "zebra", "lion", "tiger"
+    let phrases = [
+        ["apple", "banana", "cherry", "orange", "grape"],
+        ["elephant", "giraffe", "zebra", "lion", "tiger"],
+        ["red", "orange", "yellow", "green", "blue"],
+        // ... (other phrases)
     ];
 
+    function getRandomPhrase() {
+        const randomIndex = Math.floor(Math.random() * phrases.length);
+        return phrases[randomIndex];
+    }
+
     function generateWordSet() {
-        wordSetDisplay.textContent = `Type the following words: ${wordSet.join(' ')}`;
+        const phrase = getRandomPhrase();
+        wordSetDisplay.textContent = `Type the following words: ${phrase.join(' ')}`;
     }
 
     function startGame() {
@@ -56,10 +64,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     textInput.addEventListener('input', function () {
         const typedText = textInput.value.trim();
-        const targetText = wordSet.join(' ');
+        const targetText = wordSetDisplay.textContent.split(' ').slice(4).join(' ');
 
         if (typedText === targetText) {
-            wordCount = wordSet.length;
+            wordCount = phrases.flat().length;
             wordCountDisplay.textContent = `Word Count: ${wordCount}`;
             endGame();
         } else {
@@ -74,4 +82,12 @@ document.addEventListener('DOMContentLoaded', function () {
         startGame();
         textInput.focus();
     });
+
+    textInput.addEventListener('keydown', function (event) {
+        if (event.key === '`') {
+            event.preventDefault(); // Prevent default tab behavior
+            startButton.click();    // Simulate a click on the "start game" button
+        }
+    });
 });
+    
