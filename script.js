@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getFeedback(text) {
-        // Replace 'YOUR_OPENAI_API_KEY' with your actual OpenAI API key
         const apiKey = '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';
         const endpoint = 'https://api.openai.com/v1/engines/davinci/completions';
 
