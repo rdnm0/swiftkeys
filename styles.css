@@ -54,7 +54,7 @@ textarea {
 }
 
 #feedback {
-    color: #ff6347; /* Tomato color for feedback */
+    color: #000000; /* Tomato color for feedback */
     margin-top: 10px;
     font-weight: bold;
 }
