@@ -4,90 +4,51 @@ document.addEventListener('DOMContentLoaded', function () {
     const wordCountDisplay = document.getElementById('wordCount');
     const wpmDisplay = document.getElementById('wpm');
     const feedbackDisplay = document.getElementById('feedback');
-    const wordSetDisplay = document.getElementById('wordSet');
-    const startButton = document.getElementById('startButton');
 
-    let timerInterval;
-    let startTime, wordCount, totalTime;
+    textInput.addEventListener('input', function() {
+        const text = textInput.value;
+        const wordCount = countWords(text);
+        const charCount = text.length;
 
-    let phrases = [
-        ["apple", "banana", "cherry", "orange", "grape"],
-        ["elephant", "giraffe", "zebra", "lion", "tiger"],
-        ["red", "orange", "yellow", "green", "blue"],
-        // ... (other phrases)
-    ];
+        wordCountDisplay.textContent = `Word Count: ${wordCount}`;
+        charCountDisplay.textContent = `Character Count: ${charCount}`;
 
-    function getRandomPhrase() {
-        const randomIndex = Math.floor(Math.random() * phrases.length);
-        return phrases[randomIndex];
-    }
-
-    function generateWordSet() {
-        const phrase = getRandomPhrase();
-        wordSetDisplay.textContent = `Type the following words: ${phrase.join(' ')}`;
-    }
-
-    function startGame() {
-        feedbackDisplay.textContent = "";
-        wordCount = 0;
-        totalTime = 0;
-        generateWordSet();
-        startTimer();
-    }
-
-    function startTimer() {
-        startTime = new Date().getTime();
-        timerInterval = setInterval(updateTimer, 1000);
-    }
-
-    function updateTimer() {
-        const currentTime = new Date().getTime();
-        const elapsedTime = Math.floor((currentTime - startTime) / 1000); // in seconds
-        timerDisplay.textContent = `Time: ${elapsedTime}s`;
-        totalTime = elapsedTime;
-    }
-
-    function stopTimer() {
-        clearInterval(timerInterval);
-    }
-
-    function endGame() {
-        stopTimer();
-        calculateWPM();
-        feedbackDisplay.textContent = `Game Over! Your Average Words Per Minute: ${wpmDisplay.textContent}`;
-    }
-
-    function calculateWPM() {
-        const wordsPerMinute = Math.round((wordCount / totalTime) * 60);
-        wpmDisplay.textContent = `WPM: ${wordsPerMinute}`;
-    }
-
-    textInput.addEventListener('input', function () {
-        const typedText = textInput.value.trim();
-        const targetText = wordSetDisplay.textContent.split(' ').slice(4).join(' ');
-
-        if (typedText === targetText) {
-            wordCount = phrases.flat().length;
-            wordCountDisplay.textContent = `Word Count: ${wordCount}`;
-            endGame();
+        if (wordCount > 0) {
+            getFeedback(text);
         } else {
-            const typedWords = typedText.split(/\s+/);
-            wordCount = typedWords.filter(word => word !== '').length;
-            wordCountDisplay.textContent = `Word Count: ${wordCount}`;
+            feedbackDisplay.textContent = "";
         }
     });
 
-    startButton.addEventListener('click', function () {
-        textInput.value = "";
-        startGame();
-        textInput.focus();
-    });
+    function countWords(text) {
+        const words = text.trim().split(/\s+/);
+        return words.filter(word => word !== '').length;
+    }
 
-    textInput.addEventListener('keydown', function (event) {
-        if (event.key === '`') {
-            event.preventDefault(); // Prevent default tab behavior
-            startButton.click();    // Simulate a click on the "start game" button
-        }
-    });
+    function getFeedback(text) {
+        // Replace 'YOUR_OPENAI_API_KEY' with your actual OpenAI API key
+        const apiKey = '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';
+        const endpoint = 'https://api.openai.com/v1/engines/davinci/completions';
+
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                prompt: text,
+                max_tokens: 50 // Adjust as needed
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const generatedFeedback = data.choices[0].text.trim();
+            feedbackDisplay.textContent = `AI Feedback: ${generatedFeedback}`;
+        })
+        .catch(error => {
+            console.error('Error fetching AI feedback:', error);
+            feedbackDisplay.textContent = "Error fetching feedback. Please try again.";
+        });
+    }
 });
-    
